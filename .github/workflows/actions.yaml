@@ -1,5 +1,5 @@
 # Event name
-name: on_push
+name: CI
 
 # When the event should run
 on:
@@ -17,13 +17,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       # Install Java
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
-          version: 17
+          java-version: '17'
+          cache: maven
+
       # Run: mvn test
       - name: Run tests with maven
-#        working-directory: ci-observability-lab
         run: mvn test
-        # Handle remote server chromedriver
 
