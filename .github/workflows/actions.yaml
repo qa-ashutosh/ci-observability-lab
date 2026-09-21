@@ -1,5 +1,5 @@
 # Event name
-name: on_push
+name: CI
 
 # When the event should run
 on:
@@ -16,4 +16,14 @@ jobs:
     # What steps within each job
     steps:
       - uses: actions/checkout@v2
+      # Install Java
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: maven
+
+      # Run: mvn test
+      - name: Run tests with maven
+        run: mvn test
 
