@@ -16,4 +16,14 @@ jobs:
     # What steps within each job
     steps:
       - uses: actions/checkout@v2
+      # Install Java
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          version: 17
+      # Run: mvn test
+      - name: Run tests with maven
+#        working-directory: ci-observability-lab
+        run: mvn test
+        # Handle remote server chromedriver
 
