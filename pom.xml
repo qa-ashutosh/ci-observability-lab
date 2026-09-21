@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.example</groupId>
+  <artifactId>ci-observability-lab</artifactId>
+  <version>1.0.0</version>
+  <packaging>jar</packaging>
+  <name>ci-observability-lab</name>
+
+  <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <selenium.version>4.46.0</selenium.version>
+    <testng.version>7.12.0</testng.version>
+    <surefire.version>3.5.5</surefire.version>
+
+    <!-- Runtime defaults. Override from CI with -Dbrowser=firefox -Dheadless=false etc. -->
+    <browser>chrome</browser>
+    <headless>true</headless>
+    <baseUrl>https://www.saucedemo.com</baseUrl>
+    <threads>3</threads>
+    <runId>local</runId>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+      <version>${selenium.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>${testng.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${surefire.version}</version>
+        <configuration>
+          <!-- one browser per test class, run side by side -->
+          <parallel>classes</parallel>
+          <threadCount>${threads}</threadCount>
+          <perCoreThreadCount>false</perCoreThreadCount>
+          <trimStackTrace>true</trimStackTrace>
+          <systemPropertyVariables>
+            <browser>${browser}</browser>
+            <headless>${headless}</headless>
+            <baseUrl>${baseUrl}</baseUrl>
+            <runId>${runId}</runId>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
