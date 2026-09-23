@@ -45,7 +45,7 @@ jobs:
           echo "TOTAL_DURATION=${TOTAL_DURATION}" >> "$GITHUB_ENV"
 
           # Print duration to the workflow log
-          echo "Total duration: ${TOTAL_DURATION} seconds"
+          echo "TOTAL_DURATION : ${TOTAL_DURATION} seconds"
 
           # Extract test results
           bash ./src/test/resources/test_result_script.sh
