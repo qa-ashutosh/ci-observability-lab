@@ -32,7 +32,7 @@ jobs:
       # Calculate total duration
       - name: Collect build data
         if: always()  # Make sure to run even if a previous steps fails
-        run: |  # "|" means the indented lines below are part of the same command.
+        run: |  
           echo "TOTAL_DURATION=$(expr $(date +%s) - ${START_TIME})"
         # Run the script to extract test results
           bash ./src/test/resources/test_result_script.sh
