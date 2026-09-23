@@ -5,7 +5,7 @@ name: CI
 on:
   push:
     branches:
-      - "**"  #This will run on all branches, and must be quoted to be handled by yaml
+      - "**"  # Run on all branches
 
 # What jobs to execute
 jobs:
@@ -14,11 +14,14 @@ jobs:
 
     # What steps within each job
     steps:
+
       # Set a start time
       - name: Set start time
-        run: echo "START_TIME=$(date +%s)" >> $GITHUB_ENV
+        run: echo "START_TIME=$(date +%s)" >> "$GITHUB_ENV"
 
+      # Checkout repository
       - uses: actions/checkout@v4
+
       # Install Java
       - uses: actions/setup-java@v5
         with:
@@ -26,16 +29,16 @@ jobs:
           java-version: '17'
           cache: maven
 
-      # Run: mvn test
-      - name: Run tests with maven
+      # Run tests
+      - name: Run tests with Maven
         run: mvn test
-      # Calculate total duration
+
+      # Calculate total duration and collect test data
       - name: Collect build data
         if: always()  # Make sure to run even if a previous steps fails
-        run: |  
-          echo "TOTAL_DURATION=$(expr $(date +%s) - ${START_TIME})"
-        # Run the script to extract test results
+        run: |
+          # Calculate total duration
+          echo "TOTAL_DURATION=$(( $(date +%s) - START_TIME ))" >> "$GITHUB_ENV"
+
+          # Extract test results
           bash ./src/test/resources/test_result_script.sh
-
-
-
