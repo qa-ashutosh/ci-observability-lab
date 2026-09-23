@@ -17,8 +17,8 @@ fi
 
 TEST_RESULTS_STRING=$(grep "<testng-results" "${TEST_RESULTS_FILE}")
 
-echo "IGNORED_TESTS : $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $2 }')"
-echo "TOTAL_TESTS : $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $4 }')"
-echo "PASSED_TESTS : $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $6 }')"
+echo "IGNORED_TESTS: $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $2 }')"
+echo "TOTAL_TESTS: $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $4 }')"
+echo "PASSED_TESTS: $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $6 }')"
 echo "FAILED_TESTS: $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $8 }')"
-echo "SKIPPED_TESTS : $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $10 }')"
+echo "SKIPPED_TESTS: $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $10 }')"
