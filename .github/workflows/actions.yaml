@@ -37,8 +37,10 @@ jobs:
       - name: Collect build data
         if: always()  # Make sure to run even if a previous steps fails
         run: |
-          # Calculate total duration
-#          echo "TOTAL_DURATION=$(( $(date +%s) - START_TIME ))" >> "$GITHUB_ENV"
-           echo "TOTAL_DURATION=$(expr $(date +%s) - START_TIME)"
-          # Extract test results
+        # Calculate total duration
+           TOTAL_DURATION=$(( $(date +%s) - START_TIME ))
+           echo "TOTAL_DURATION=${TOTAL_DURATION}" >> "$GITHUB_ENV"
+           echo "Total duration: ${TOTAL_DURATION} seconds"
+
+        # Extract test results
           bash ./src/test/resources/test_result_script.sh
