@@ -30,8 +30,7 @@ jobs:
       - name: Run tests with maven
         run: mvn test
 
-      # Calculate total duration
-      - name: Collect build data
+      - name: Collect build data    # Calculate total duration
         if: always()  # Make sure to run even if a previous steps fails
         run: |  # "|" means the indented lines below are part of the same command.
           echo "TOTAL_DURATION=${(expr $(date +%s) - ${START_TIME})"
