@@ -1,39 +1,51 @@
 # Event name
 name: CI
 
-# When the event should run
+# When the workflow should run
 on:
   push:
     branches:
-      - "**"  #This will run on all branches, and must be quoted to be handled by yaml
+      - "**"  # Run on all branches
 
 # What jobs to execute
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
 
-    # What steps within each job
+    # What steps to execute within the job
     steps:
+
       # Set a start time
       - name: Set start time
-        run: echo "START_TIME=$(date +%s)" >> $GITHUB_ENV
+        run: echo "START_TIME=$(date +%s)" >> "$GITHUB_ENV"
 
-      - uses: actions/checkout@v2
+      # Checkout repository
+      - uses: actions/checkout@v4
+
       # Install Java
-      - uses: actions/setup-java@v5
+      - name: Setup Java
+        uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
           java-version: '17'
           cache: maven
 
-      # Run: mvn test
-      - name: Run tests with maven
+      # Run tests with Maven
+      - name: Run tests with Maven
         run: mvn test
 
-      # Calculate total duration
+      # Calculate total duration and collect test data
       - name: Collect build data
-        if: always()  # Make sure to run even if a previous steps fails
-        run: expr $(date +%s) - ${START_TIME}
+        if: always()
+        run: |
+          # Calculate total duration
+          TOTAL_DURATION=$(( $(date +%s) - START_TIME ))
 
+          # Store duration as a GitHub Actions environment variable
+          echo "TOTAL_DURATION=${TOTAL_DURATION}" >> "$GITHUB_ENV"
 
+          # Print duration to the workflow log
+          echo "TOTAL_DURATION: ${TOTAL_DURATION} seconds"
 
+          # Extract test results
+          bash ./src/test/resources/test_result_script.sh
