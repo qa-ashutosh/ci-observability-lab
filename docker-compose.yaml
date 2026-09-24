@@ -1,0 +1,16 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    expose:
+      - 9090
+    ports:
+      - 9090:9090
+    volumes:  # configuration file to scrap prometheus pushgateway
+      - ./prometheus:/etc/prometheus
+
+  pushgateway:
+    image: prom/pushgateway
+    expose:
+      - 9091
+    ports:
+      - 9091:9091
