@@ -38,10 +38,6 @@ jobs:
       - name: Collect build data
         if: always()
         run: |
-      # Calculate total duration and collect test data
-      - name: Collect build data
-        if: always()
-        run: |
           # Calculate total duration
           TOTAL_DURATION=$(( $(date +%s) - START_TIME ))
 
