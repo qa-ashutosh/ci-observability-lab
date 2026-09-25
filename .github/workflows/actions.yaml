@@ -38,14 +38,18 @@ jobs:
       - name: Collect build data
         if: always()
         run: |
+      # Calculate total duration and collect test data
+      - name: Collect build data
+        if: always()
+        run: |
           # Calculate total duration
           TOTAL_DURATION=$(( $(date +%s) - START_TIME ))
 
-          # Store duration as a GitHub Actions environment variable
-          echo "TOTAL_DURATION=${TOTAL_DURATION}" >> "$GITHUB_ENV"
-
-          # Print duration to the workflow log
-          echo "TOTAL_DURATION: ${TOTAL_DURATION} seconds"
+          # Push duration metric to Prometheus Pushgateway
+          echo "github_actions_total_duration ${TOTAL_DURATION}" | \
+            curl --fail --silent --show-error \
+            --data-binary @- "${{ secrets.PUSHGATEWAY_URL }}/metrics/job/github_actions" || \
+            echo "WARNING: Failed to push duration metric to Pushgateway"
 
           # Extract test results
           bash ./src/test/resources/test_result_script.sh
