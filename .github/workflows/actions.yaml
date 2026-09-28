@@ -75,4 +75,4 @@ jobs:
 
           # Extract test results
           bash ./src/test/resources/test_result_script.sh
-          buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
+          buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID   # Finalize the span
