@@ -17,7 +17,7 @@ fi
 
 TEST_RESULTS_STRING=$(grep "<testng-results" "${TEST_RESULTS_FILE}")
 
-cat <<EOF | curl --data-binary @- ${PUSHGATEWAY_URL}/metrics/jobs/github_actions
+cat <<EOF | curl --data-binary @- ${PUSHGATEWAY_URL}/metrics/job/github_actions
 github_actions_ignored_tests $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $2 }')
 github_actions_total_tests $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $4 }')
 github_actions_passed_tests $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $6 }')
