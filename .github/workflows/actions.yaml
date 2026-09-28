@@ -36,6 +36,8 @@ jobs:
 
       # Calculate total duration and collect test data
       - name: Collect build data
+        env:
+          PUSHGATEWAY_URL: ${{ secrets.PUSHGATEWAY_URL }}
         if: always()
         run: |
           # Calculate total duration
@@ -44,7 +46,7 @@ jobs:
           # Push duration metric to Prometheus Pushgateway
           echo "github_actions_total_duration ${TOTAL_DURATION}" | \
             curl --fail --silent --show-error \
-            --data-binary @- "${{ secrets.PUSHGATEWAY_URL }}/metrics/job/github_actions" || \
+            --data-binary @- "${PUSHGATEWAY_URL}/metrics/job/github_actions" || \
             echo "WARNING: Failed to push duration metric to Pushgateway"
 
           # Extract test results
