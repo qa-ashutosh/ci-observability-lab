@@ -7,13 +7,17 @@ on:
     branches:
       - "**"  # Run on all branches
   schedule:
-    - cron: '30 11 * * 2'  # This will run every Tuesday at 11:30 AM (UTC) (which 5 PM India Time)
+    - cron: '0 17 * * 2'
+      timezone: 'Asia/Kolkata'
 
 
 # What jobs to execute
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+
+    env:
+      BUILDEVENT_FILE: './buildevents.txt'  # This file is at root of our repository
 
     # What steps to execute within the job
     steps:
@@ -22,8 +26,17 @@ jobs:
       - name: Set start time
         run: echo "START_TIME=$(date +%s)" >> "$GITHUB_ENV"
 
+      - name: Initialize Honeycomb build events
+        uses: honeycombio/gha-buildevents@v4
+        with:
+          apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
+          dataset: tau-build-pipeline
+          status: ${{ job.status }}
+          otel-traceid: true
+
       # Checkout repository
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       # Install Java
       - name: Setup Java
@@ -33,14 +46,22 @@ jobs:
           java-version: '17'
           cache: maven
 
+      # Introduce start of span
+      - name: Telemetry start - Maven tests
+        if: always()
+        run: |
+          echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
+          echo "STEP_ID='run-maven-tests'" >> $GITHUB_ENV
+
       # Run tests with Maven
       - name: Run tests with Maven
         run: mvn test
 
       # Calculate total duration and collect test data
-      - name: Collect build data
+      - name: Telemetry - Collect build data
         env:
           PUSHGATEWAY_URL: ${{ secrets.PUSHGATEWAY_URL }}
+#          BUILDEVENT_FILE: ${{ env.BUILDEVENT_FILE }}
         if: always()
         run: |
           # Calculate total duration
@@ -54,3 +75,4 @@ jobs:
 
           # Extract test results
           bash ./src/test/resources/test_result_script.sh
+          buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID   # Finalize the span
