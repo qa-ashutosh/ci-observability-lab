@@ -17,10 +17,32 @@ fi
 
 TEST_RESULTS_STRING=$(grep "<testng-results" "${TEST_RESULTS_FILE}")
 
-cat <<EOF | curl --data-binary @- ${PUSHGATEWAY_URL}/metrics/job/github_actions
-github_actions_ignored_tests{action_id="${GITHUB_RUN_NUMBER}", commit="${GITHUB_SHA}", actor="${GITHUB_ACTOR}", branch="${GITHUB_REF}"} $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $2 }')
-github_actions_total_tests{action_id="${GITHUB_RUN_NUMBER}", commit="${GITHUB_SHA}", actor="${GITHUB_ACTOR}", branch="${GITHUB_REF}"} $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $4 }')
-github_actions_passed_tests{action_id="${GITHUB_RUN_NUMBER}", commit="${GITHUB_SHA}", actor="${GITHUB_ACTOR}", branch="${GITHUB_REF}"} $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $6 }')
-github_actions_failed_tests{action_id="${GITHUB_RUN_NUMBER}", commit="${GITHUB_SHA}", actor="${GITHUB_ACTOR}", branch="${GITHUB_REF}"} $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $8 }')
-github_actions_skipped_tests{action_id="${GITHUB_RUN_NUMBER}", commit="${GITHUB_SHA}", actor="${GITHUB_ACTOR}", branch="${GITHUB_REF}"} $(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $10 }')
+if [[ -z "${TEST_RESULTS_STRING}" ]]; then
+    echo "ERROR: <testng-results> element not found in ${TEST_RESULTS_FILE}"
+    exit 1
+fi
+
+# Extract test results
+IGNORED_TESTS=$(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $2 }')
+TOTAL_TESTS=$(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $4 }')
+PASSED_TESTS=$(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $6 }')
+FAILED_TESTS=$(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $8 }')
+SKIPPED_TESTS=$(echo "${TEST_RESULTS_STRING}" | awk -F'"' '{ print $10 }')
+
+# Push test metrics to Prometheus Pushgateway
+cat <<EOF | curl --fail --silent --show-error \
+  --data-binary @- \
+  "${PUSHGATEWAY_URL}/metrics/job/github_actions"
+github_actions_ignored_tests{action_id="${GITHUB_RUN_NUMBER}",commit="${GITHUB_SHA}",actor="${GITHUB_ACTOR}",branch="${GITHUB_REF_NAME}"} ${IGNORED_TESTS}
+github_actions_total_tests{action_id="${GITHUB_RUN_NUMBER}",commit="${GITHUB_SHA}",actor="${GITHUB_ACTOR}",branch="${GITHUB_REF_NAME}"} ${TOTAL_TESTS}
+github_actions_passed_tests{action_id="${GITHUB_RUN_NUMBER}",commit="${GITHUB_SHA}",actor="${GITHUB_ACTOR}",branch="${GITHUB_REF_NAME}"} ${PASSED_TESTS}
+github_actions_failed_tests{action_id="${GITHUB_RUN_NUMBER}",commit="${GITHUB_SHA}",actor="${GITHUB_ACTOR}",branch="${GITHUB_REF_NAME}"} ${FAILED_TESTS}
+github_actions_skipped_tests{action_id="${GITHUB_RUN_NUMBER}",commit="${GITHUB_SHA}",actor="${GITHUB_ACTOR}",branch="${GITHUB_REF_NAME}"} ${SKIPPED_TESTS}
 EOF
+
+# Add test results to Honeycomb build events
+echo "gha.maven.test.ignored=${IGNORED_TESTS}" >> "$BUILDEVENT_FILE"
+echo "gha.maven.test.total=${TOTAL_TESTS}" >> "$BUILDEVENT_FILE"
+echo "gha.maven.test.passed=${PASSED_TESTS}" >> "$BUILDEVENT_FILE"
+echo "gha.maven.test.failed=${FAILED_TESTS}" >> "$BUILDEVENT_FILE"
+echo "gha.maven.test.skipped=${SKIPPED_TESTS}" >> "$BUILDEVENT_FILE"
