@@ -22,8 +22,17 @@ jobs:
       - name: Set start time
         run: echo "START_TIME=$(date +%s)" >> "$GITHUB_ENV"
 
+      - name: Initialize Honeycomb build events
+        uses: honeycombio/gha-buildevents@v4
+        with:
+          apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
+          dataset: tau-build-pipeline
+          status: ${{ job.status }}
+          otel-traceid: true
+
       # Checkout repository
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       # Install Java
       - name: Setup Java
