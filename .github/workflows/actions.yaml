@@ -8,7 +8,7 @@ on:
       - "**"  # Run on all branches
   schedule:
     - cron: '0 17 * * 2'
-    - timezone: 'Asia/Kolkata'
+      timezone: 'Asia/Kolkata'
 
 
 # What jobs to execute
