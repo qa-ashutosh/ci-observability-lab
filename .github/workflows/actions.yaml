@@ -6,6 +6,9 @@ on:
   push:
     branches:
       - "**"  # Run on all branches
+  schedule:
+    - '30 11 * * 2'  # This will run every Tuesday at 11:30 AM (UTC) (which 5 PM India Time)
+
 
 # What jobs to execute
 jobs:
