@@ -1,38 +1,70 @@
-# ci-observability-lab
+# CI Observability Lab
 
-Small Selenium 4 + TestNG + Maven suite against https://www.saucedemo.com (public demo shop by Sauce Labs).
-15 tests in 3 sections. **11 are expected to pass, 4 fail on purpose** (group `intentional-fail`).
+A hands-on **Selenium 4 + TestNG + Maven** lab built around the public [SauceDemo](https://www.saucedemo.com/) application.
 
-Purpose: hands-on practice for CI pipelines, then observability, monitoring and telemetry on top of the test results.
+The project starts with UI test automation and progressively adds **CI, test reporting, metrics, telemetry, and observability** to demonstrate how QA can evolve from test execution to actionable engineering signals.
 
-| Section   | Class          | Pass | Intentional fail                |
-|-----------|----------------|------|---------------------------------|
-| Login     | LoginTests     | 3    | 2 (wrong title, latency budget) |
-| Inventory | InventoryTests | 4    | 1 (expects 7 products)          |
-| Checkout  | CheckoutTests  | 4    | 1 (missing element / timeout)   |
+---
 
-Requirements: JDK 17+, Maven 3.9+, Chrome (or Firefox/Edge). No manual driver setup (Selenium Manager).
+## 🎯 What This Lab Demonstrates
 
-## Commands
-```
-mvn clean test                                   # everything (build goes red: 4 failures)
-mvn clean test -DexcludedGroups=intentional-fail # green run
-mvn clean test -Dgroups=intentional-fail         # only the failing ones
-mvn clean test -Dgroups=smoke                    # quick smoke
-mvn clean test -Dbrowser=firefox -Dheadless=false
-mvn clean test -Dthreads=1                       # no parallelism
-mvn clean test -DrunId=build-42                  # tag log lines with your CI build id
-mvn clean test -Dmaven.test.failure.ignore=true  # keep later CI steps running despite failures
-```
+- Selenium 4 UI automation with TestNG
+- Maven-based test execution
+- Test groups and selective execution
+- Intentional test failures for CI scenarios
+- Test result extraction and reporting
+- GitHub Actions CI integration
+- Prometheus / Pushgateway metrics
+- Honeycomb build telemetry
+- Test duration and failure analysis
+- CI artifacts and failure screenshots
+- Correlation of test results with CI build information
 
-## Output produced (for CI, reports, telemetry)
-- `target/surefire-reports/TEST-*.xml`  JUnit-style XML (results, durations, failure types)
-- `target/surefire-reports/*.html` and `testng-results.xml`
-- `target/screenshots/*.png`            one screenshot per failed test
-- stdout lines starting with `[lab]`    key=value events: TEST_START, TEST_END (status, duration_ms, error_type, groups, run_id, browser), SUITE_END
+---
 
-## Observability ideas to try next
-- Parse the `[lab]` log lines and ship them to a log platform; chart `duration_ms` per test and failures by `error_type`.
-- Publish the JUnit XML in your CI tool to get pass-rate and duration trends over time.
-- Alert on the latency test (`performanceGlitchUserLogsInWithinTwoSeconds`) and on any change in pass rate for the non-intentional tests.
-- Keep the failing screenshots as CI build artifacts.
+## 🧪 Test Suite
+
+The suite contains **15 tests** across three functional areas.
+
+| Section | Test Class | Expected Pass | Intentional Fail |
+|---|---|---:|---:|
+| Login | `LoginTests` | 3 | 2 |
+| Inventory | `InventoryTests` | 4 | 1 |
+| Checkout | `CheckoutTests` | 4 | 1 |
+| **Total** | | **11** | **4** |
+
+The four intentional failures belong to the `intentional-fail` TestNG group and are deliberately introduced to simulate real CI failure scenarios.
+
+### Intentional failures
+
+**Login**
+- Incorrect page-title expectation
+- Login latency exceeds the defined threshold
+
+**Inventory**
+- Expects 7 products instead of the actual count
+
+**Checkout**
+- Attempts to interact with a missing element, resulting in a timeout
+
+This provides predictable success and failure signals for CI and observability experiments.
+
+---
+
+## 🛠️ Prerequisites
+
+- JDK 17+
+- Maven 3.9+
+- Chrome, Firefox, or Edge
+
+No manual WebDriver installation is required.  
+**Selenium Manager** handles browser driver management automatically.
+
+---
+
+## 🚀 Running the Tests
+
+### Run the complete suite
+
+```bash
+mvn clean test
